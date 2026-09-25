@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  # =========================================================================
+  # 🛠️ DEVELOPMENT ENVIRONMENT
+  # =========================================================================
+  postgres-dev:
+    image: postgres:16-alpine
+    container_name: medicosync-pg-dev
+    environment:
+      POSTGRES_USER: aksty
+      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_DB: medicosync_dev
+    ports:
+      - "4444:5432" # Maps external port 4444 to internal 5432 🚀
+    volumes:
+      - pg_dev_data:/var/lib/postgresql/data
+
+  redis-dev:
+    image: redis:alpine
+    container_name: medicosync-redis-dev
+    ports:
+      - "6379:6379"
+
+  # =========================================================================
+  # 🧪 AUTOMATION & TESTING ENVIRONMENT
+  # =========================================================================
+  postgres-test:
+    image: postgres:16-alpine
+    container_name: medicosync-pg-test
+    environment:
+      POSTGRES_USER: aksty
+      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_DB: medicosync_test
+    ports:
+      - "4443:5432" # Maps external port 4443 to internal 5432 🚀
+    volumes:
+      - pg_test_data:/var/lib/postgresql/data
+
+  redis-test:
+    image: redis:alpine
+    container_name: medicosync-redis-test
+    ports:
+      - "6380:6379"
+
+volumes:
+  pg_dev_data:
+  pg_test_data:

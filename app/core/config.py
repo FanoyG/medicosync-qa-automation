@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     # Database
     DATABASE_URL: str = Field(alias="DATABASE_URL", description="Alembic Connection")  # e.g., Alembic 
     DB_CONNECTION: str = Field(alias="DB_CONNECTION", description="Fastapi Connection") # e.g., "postgresql://user:password@localhost/medicosync"
+    REDIS_URL: str = Field(alias="REDIS_URL", description="Redis connection")
 
     # Security
     SECRET_KEY: str = Field(alias="SECRET_KEY")
