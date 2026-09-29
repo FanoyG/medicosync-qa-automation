@@ -13,7 +13,7 @@ class AuthOrchestrator:
         self.token_gen = token_gen
 
     async def register_user(self, email: str, plain_pwd: str, username: str, role: str,
-                             gender: str, country_code: str, phone_number: str) -> dict:
+                            gender: str, country_code: str, phone_number: str) -> dict:
         if await self.user_reg.is_email_taken(email=email):
             raise ValueError("Account already exists with this email.")
 
@@ -38,8 +38,11 @@ class AuthOrchestrator:
 
         if self.pwd_handler.verify_pwd(pln_pwd=plain_pwd, stored_hash=user.hashed_password):
             await self.session_mgr.reset_attempts(identifier=email)
-            access_token = self.token_gen.create_access_token(user_id=str(user.id), role=user.role.value)
-            refresh_token = await self.token_gen.cache_refresh_token(user_id=str(user.id), role=user.role.value)
+
+            #Saftey check if user.role have .value property.
+            user_role = user.role.value if hasattr(user.role, "value") else user.role
+            access_token = self.token_gen.create_access_token(user_id=str(user.id), role=user_role)
+            refresh_token = await self.token_gen.cache_refresh_token(user_id=str(user.id), role=user_role)
             return {"message": "Login successful", "user_id": str(user.id),
                     "access_token": access_token, "refresh_token": refresh_token}
         else:

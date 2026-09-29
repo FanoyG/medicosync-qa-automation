@@ -1,11 +1,11 @@
 import asyncio
 import sys
-
 import pytest
 from testcontainers.community.postgres import PostgresContainer
-
 import pytest_asyncio
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
+from testcontainers.community.redis import RedisContainer
+import redis.asyncio as aioredis
 
 if sys.platform == "win32":
     # psycopg 3 does not support the default Windows ProactorEventLoop in async mode.
@@ -46,3 +46,23 @@ async def db_session(engine):
     async with engine.begin() as conn:
         for table in reversed(Base.metadata.sorted_tables):
             await conn.execute(table.delete())
+
+
+@pytest.fixture(scope="session")
+def redis_container():
+    """Spins up a real Redis container ONCE for the entire test run."""
+    with RedisContainer("redis:7-alpine") as redis_container:
+        yield redis_container
+
+@pytest.fixture
+async def redis_client(redis_container):
+    """Provides a fresh, connected async Redis client per test case."""
+
+    host = redis_container.get_container_host_ip()
+    port = redis_container.get_exposed_port(redis_container.port)
+
+    client = aioredis.Redis(host=host, port=int(port), decode_responses=True)
+    yield client
+
+    await client.flushdb()
+    await client.close()

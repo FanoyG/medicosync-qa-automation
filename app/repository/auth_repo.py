@@ -16,7 +16,7 @@ class UserRepository:
         user = User(
             email=email,
             hashed_password=hashed_password,
-            username=username,
+            full_name=username,
             role=role,
             gender=gender,
             country_code=country_code,
