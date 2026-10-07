@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#1e293b">
+    <title>MedicoSync | Dashboard</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: "Segoe UI", sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: #f4f6f8;
+            color: #1e293b;
+        }
+
+        nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 32px;
+            background: #1e293b;
+            color: #fff;
+        }
+
+        nav h2 {
+            font-size: 20px;
+        }
+
+        #logout-btn {
+            padding: 8px 16px;
+            border: 0;
+            border-radius: 6px;
+            background: #ef4444;
+            color: #fff;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        #logout-btn:hover {
+            background: #dc2626;
+        }
+
+        main {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .welcome,
+        .card {
+            padding: 24px;
+            border-radius: 10px;
+            background: #fff;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        }
+
+        .welcome {
+            margin-bottom: 24px;
+        }
+
+        .welcome h1 {
+            font-size: 22px;
+        }
+
+        .welcome p,
+        .card p {
+            color: #64748b;
+        }
+
+        .welcome p {
+            margin-top: 6px;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+        }
+
+        .card {
+            padding: 20px;
+        }
+
+        .card h2 {
+            margin-bottom: 8px;
+            font-size: 18px;
+        }
+
+        .card p {
+            font-size: 14px;
+        }
+
+        @media (max-width: 500px) {
+            nav {
+                padding: 16px 20px;
+            }
+
+            main {
+                margin-top: 24px;
+            }
+        }
+    </style>
+    <script src="/js/dashboard.js" defer></script>
+</head>
+<body>
+    <nav aria-label="Main navigation">
+        <h2>MedicoSync</h2>
+        <button id="logout-btn" type="button">Logout</button>
+    </nav>
+
+    <main>
+        <section class="welcome" aria-labelledby="welcome-text">
+            <h1 id="welcome-text">Welcome back!</h1>
+            <p>Logged in as <span id="user-email">--</span></p>
+        </section>
+
+        <section class="cards" aria-label="Dashboard">
+            <article class="card">
+                <h2>Patient Records</h2>
+                <p>View and manage your patients' records.</p>
+            </article>
+            <article class="card">
+                <h2>Appointments</h2>
+                <p>Check today's scheduled appointments.</p>
+            </article>
+            <article class="card">
+                <h2>Profile</h2>
+                <p>Update your account details.</p>
+            </article>
+        </section>
+    </main>
+</body>
+</html>
