@@ -31,7 +31,7 @@ def get_auth_orchestrator(
 async def register_endpoint(payload: UserRegister, orchestrator: AuthOrchestrator = Depends(get_auth_orchestrator)):
     result = await orchestrator.register_user(
         email=payload.email, plain_pwd=payload.password, username=payload.full_name,
-        role=payload.role, gender=payload.gender,
+        gender=payload.gender,
         country_code=payload.phone.country_code, phone_number=payload.phone.number,
     )
     await orchestrator.user_reg.db.commit()

@@ -12,11 +12,12 @@ class AuthOrchestrator:
         self.user_reg = user_reg
         self.token_gen = token_gen
 
-    async def register_user(self, email: str, plain_pwd: str, username: str, role: str,
+    async def register_user(self, email: str, plain_pwd: str, username: str,
                             gender: str, country_code: str, phone_number: str) -> dict:
         if await self.user_reg.is_email_taken(email=email):
             raise ValueError("Account already exists with this email.")
 
+        role = "doctor"
         hashed_pwd = self.pwd_handler.hash_plain_pwd(pln_pwd=plain_pwd)
         user = await self.user_reg.add_user(
             email=email, hashed_password=hashed_pwd, username=username,

@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from app.models.user import User  # tumhara model jo copy karoge
+from app.models.user import User, UserGender, UserRole
 
 
 class UserRepository:
@@ -17,8 +17,8 @@ class UserRepository:
             email=email,
             hashed_password=hashed_password,
             full_name=username,
-            role=role,
-            gender=gender,
+            role=UserRole(role),
+            gender=UserGender(gender),
             country_code=country_code,
             phone_number=phone_number,
         )
