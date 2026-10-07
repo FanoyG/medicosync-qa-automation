@@ -183,7 +183,6 @@ def valid_user_register_data():
 		"email": "user@example.com",
 		"password": "ValidPass1!x",
 		"full_name": "John Smith",
-		"role": "doctor",
 		"gender": "male",
 		"phone": {
 			"country_code": "+91",
@@ -197,8 +196,16 @@ def test_user_register_accepts_valid_data(valid_user_register_data):
 	user = UserRegister(**valid_user_register_data)
 
 	assert user.email == valid_user_register_data["email"]
-	assert user.role == valid_user_register_data["role"]
+	assert user.role == "doctor"
 	assert user.gender == valid_user_register_data["gender"]
+
+
+@pytest.mark.parametrize("role", ["admin", "assistant"])
+def test_user_register_rejects_privileged_role_override(valid_user_register_data, role):
+	data = {**valid_user_register_data, "role": role}
+
+	with pytest.raises(ValidationError):
+		UserRegister(**data)
 
 
 # UserRegister email field tests
@@ -324,37 +331,6 @@ def test_user_register_rejects_null_full_name(valid_user_register_data):
 		UserRegister(**data)
 
 
-# UserRegister role field tests
-
-
-@pytest.mark.parametrize("role", ["doctor", "admin", "assistant", "DOCTOR", " Admin "])
-def test_user_register_accepts_and_normalizes_role(valid_user_register_data, role):
-	data = valid_user_register_data
-	data["role"] = role
-
-	user = UserRegister(**data)
-
-	assert user.role == role.strip().lower()
-
-
-@pytest.mark.parametrize("role", ["nurse", "", 1, True])
-def test_user_register_rejects_invalid_role(valid_user_register_data, role):
-	data = valid_user_register_data
-	data["role"] = role
-
-	with pytest.raises(ValidationError):
-		UserRegister(**data)
-
-
-@pytest.mark.parametrize("role", [None])
-def test_user_register_rejects_null_role(valid_user_register_data, role):
-	data = valid_user_register_data
-	data["role"] = role
-
-	with pytest.raises(ValidationError):
-		UserRegister(**data)
-
-
 # UserRegister gender field tests
 
 
@@ -439,7 +415,6 @@ def test_user_register_accepts_missing_specialty(valid_user_register_data):
 		("email", 123),
 		("password", 123),
 		("full_name", 123),
-		("role", ["doctor"]),
 		("gender", {"value": "male"}),
 		("phone", 123),
 		("specialty", ["Cardiology"]),

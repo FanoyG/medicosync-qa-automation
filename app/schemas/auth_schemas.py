@@ -19,7 +19,7 @@ class UserRegister(BaseModel):
     email: EmailStr
     password: str = Field(min_length=12, max_length=18)
     full_name: str = Field(min_length=2)
-    role: Literal["doctor", "admin", "assistant"]
+    role: Literal["doctor"] = "doctor"
     gender: Literal["male", "female", "other"]
     phone: PhoneSchema
     specialty: str | None = None
