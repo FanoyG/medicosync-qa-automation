@@ -9,6 +9,7 @@ ENV_PATH = Path(__file__).resolve().parents[2] / ".env"
 class Settings(BaseSettings):
     
     PROJECT_NAME: str = "MedicoSync"
+    base_url: str = Field(default="http://127.0.0.1:8000", alias="baseUrl")
 
     # Database
     DATABASE_URL: str = Field(alias="DATABASE_URL", description="Alembic Connection")  # e.g., Alembic 
