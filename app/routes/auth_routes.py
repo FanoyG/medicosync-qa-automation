@@ -9,13 +9,21 @@ from app.services.token_service import TokenGenerator
 from app.services.auth_orchestrator import AuthOrchestrator
 from app.repository.auth_repo import UserRepository
 from app.schemas.auth_schemas import UserRegister, UserLogin, RefreshRequest
+from functools import lru_cache
 
 router = APIRouter()
 
-GLOBAL_PWD_HANDLER = PasswordHandler()
-GLOBAL_SESSION_MGR = SessionManager(redis_client=redis_client)
-GLOBAL_TOKEN_GEN = TokenGenerator(redis_client=redis_client)
+@lru_cache
+def get_pwd_handler() -> PasswordHandler:
+    return PasswordHandler()
 
+@lru_cache
+def get_session_manager() -> SessionManager:
+    return SessionManager(redis_client=redis_client)
+
+@lru_cache
+def get_token_generator() -> TokenGenerator:
+    return TokenGenerator(redis_client=redis_client)
 
 def get_user_repository(db: AsyncSession = Depends(get_db)) -> UserRepository:
     return UserRepository(db)
@@ -23,9 +31,16 @@ def get_user_repository(db: AsyncSession = Depends(get_db)) -> UserRepository:
 
 def get_auth_orchestrator(
     repo: UserRepository = Depends(get_user_repository),
+    pwd_handler : PasswordHandler = Depends(get_pwd_handler),
+    session_mgr : SessionManager = Depends(get_session_manager),
+    token_gen   : TokenGenerator = Depends(get_token_generator)
 ) -> AuthOrchestrator:
-    return AuthOrchestrator(GLOBAL_PWD_HANDLER, GLOBAL_SESSION_MGR, repo, GLOBAL_TOKEN_GEN)
-
+    return AuthOrchestrator(
+        pwd_handler=pwd_handler,
+        session_mgr=session_mgr,
+        user_reg=repo,
+        token_gen=token_gen
+    )
 
 @router.post("/auth/register")
 async def register_endpoint(payload: UserRegister, orchestrator: AuthOrchestrator = Depends(get_auth_orchestrator)):
