@@ -61,3 +61,7 @@ async def login_endpoint(payload: UserLogin, orchestrator: AuthOrchestrator = De
 @router.post("/auth/refresh")
 async def refresh_endpoint(payload: RefreshRequest, orchestrator: AuthOrchestrator = Depends(get_auth_orchestrator)):
     return await orchestrator.refresh_access_token(refresh_token_str=payload.refresh_token)
+
+@router.get("/health", status_code=200)
+async def health_check():
+    return {"status" : "Healthy", "status_code" : 200}
