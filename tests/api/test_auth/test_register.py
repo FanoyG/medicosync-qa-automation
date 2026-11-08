@@ -1,3 +1,6 @@
+import pytest
+
+@pytest.mark.smoke
 async def test_register_success(auth_service, register_payload):
     response = await auth_service.register(register_payload)
 

@@ -1,5 +1,7 @@
 import httpx
+import pytest
 
+@pytest.mark.smoke
 async def test_app_health(client: httpx.AsyncClient):
     response = await client.get("/health")
     assert response.status_code == 200
