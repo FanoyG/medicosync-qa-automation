@@ -5,7 +5,7 @@ from app.core.config import settings
 
 async_engine = create_async_engine(
     settings.DB_CONNECTION,
-    echo=True,
+    echo=False,
     pool_size=10,
     max_overflow=20,
 )

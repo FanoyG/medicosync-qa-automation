@@ -7,7 +7,7 @@ from app.models.user import User, UserGender, UserRole
 @pytest.fixture()
 def valid_user_payload():
     return {
-        "email": "test@test.com",
+        "email": f"user_{uuid.uuid4().hex[:8]}@example.com",
         "hashed_password": "some_hashed_value",
         "full_name": "John Doe",
         "role": UserRole.DOCTOR,

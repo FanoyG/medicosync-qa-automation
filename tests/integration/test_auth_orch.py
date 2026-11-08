@@ -29,7 +29,6 @@ def valid_user_payload():
         "email": "new_user@mediosync.com",
         "plain_pwd": "SecurePassword123",
         "username": "tester1",
-        "role": "admin",
         "gender": "male",
         "country_code": "IN",
         "phone_number": "9999999999"
@@ -47,6 +46,7 @@ async def test_register_user_success_path(auth_orchestrator, valid_user_payload,
     db_user = await db_session.get(User, UUID(user_id))
     assert db_user is not None
     assert db_user.email == valid_user_payload["email"]
+    assert db_user.role.value == "doctor"
     assert db_user.hashed_password != valid_user_payload["plain_pwd"]
 
     refersh_token_str = result["refresh_token"]
@@ -55,7 +55,7 @@ async def test_register_user_success_path(auth_orchestrator, valid_user_payload,
     
     assert cached_data is not None, f"Key {redis_key} was not found in Redis."
     assert cached_data["user_id"] == user_id
-    assert cached_data["role"] == valid_user_payload["role"]
+    assert cached_data["role"] == "doctor"
 
     ttl = await redis_client.ttl(redis_key)
     assert ttl > 0
@@ -123,7 +123,7 @@ async def test_login_user_success_resets_historical_failed_counters(auth_orchest
     login_rt_str = login_result["refresh_token"]
     cached_data = await redis_client.hgetall(f"refresh:{login_rt_str}")
     assert cached_data["user_id"] == user_id
-    assert cached_data["role"] == valid_user_payload["role"]
+    assert cached_data["role"] == "doctor"
 
 
 # Sad Locked Out.
