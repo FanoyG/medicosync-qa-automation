@@ -3,10 +3,15 @@ import time
 import uuid
 import jwt
 from app.core.config import settings
+from dotenv import load_dotenv
+
+load_dotenv()
 
 class TokenGenerator:
 
-    SECRET_KEY = os.getenv("JWT_SECRET_KEY", "medicoSync_fallback_secure_key_1111111")
+    JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
+    if not JWT_SECRET_KEY:
+        raise RuntimeError("JWT_SECRET_KEY is not set")
     ALGORITHM = "HS256"
 
     def __init__(self, redis_client):
@@ -19,7 +24,7 @@ class TokenGenerator:
             "iat": int(time.time()),
             "exp": int(time.time()) + (settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60)
         }
-        return jwt.encode(payload, self.SECRET_KEY, algorithm=self.ALGORITHM)
+        return jwt.encode(payload, self.JWT_SECRET_KEY, algorithm=self.ALGORITHM)
 
     def gen_refresh_token(self) -> str:
         return str(uuid.uuid4())
