@@ -95,8 +95,22 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      # 1. Look for existing Chromium folder from past runs to save time
+      - name: Cache Playwright Browser Binaries
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('**/requirements.txt') }}
+
+      # 2. Only download Chromium if it's missing from the cache registry
       - name: Install Chromium
-        run: python -m playwright install --with-deps chromium
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: python -m playwright install chromium
+
+      # 3. Always set up Linux system packages (~10-15 seconds)
+      - name: Install Playwright OS Dependencies
+        run: python -m playwright install-deps chromium
 
       # The app creates its own tables on startup (create_all in main.py).
       - name: Start the app
@@ -116,4 +130,4 @@ jobs:
           path: |
             test-results/
             app.log
-          retention-days: 7      
+          retention-days: 7
