@@ -34,7 +34,7 @@ app = FastAPI(title="MedicoSync Auth Sandbox", lifespan=lifespan)
 app.include_router(router)
 
 
-@app.get("/", include_in_schema=False)
+@app.get("/login", include_in_schema=False)
 async def frontend_home():
     return FileResponse(FRONTEND_DIR / "Auth.html")
 
