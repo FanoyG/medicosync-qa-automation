@@ -34,9 +34,18 @@ class UserRegister(BaseModel):
     @field_validator("password")
     @classmethod
     def validate_password_complexity(cls, v: str) -> str:
-        pattern = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{12,18}$"
-        if not re.match(pattern, v):
-            raise ValueError("Password must contain uppercase, lowercase, a number, and a special character.")
+        if not 12 <= len(v) <= 18:
+            raise ValueError("Password must be 12 to 18 characters long.")
+        if not re.search(r"[a-z]", v):
+            raise ValueError("Password must contain a lowercase letter.")
+        if not re.search(r"[A-Z]", v):
+            raise ValueError("Password must contain an uppercase letter.")
+        if not re.search(r"[0-9]", v):
+            raise ValueError("Password must contain a number.")
+        if not re.search(r"[@$!%*?&]", v):
+            raise ValueError("Password must contain a special character (@$!%*?&).")
+        if not re.fullmatch(r"[A-Za-z0-9@$!%*?&]+", v):
+            raise ValueError("Password can only use letters, numbers and @$!%*?&")
         return v
 
     @field_validator("full_name")
