@@ -1,7 +1,7 @@
 const token = localStorage.getItem('access_token');
 
 if (!token) {
-    window.location.replace('/');
+    window.location.replace('/login');
 } else {
     document.getElementById('user-email').textContent =
         localStorage.getItem('user_email') || '--';
@@ -9,6 +9,6 @@ if (!token) {
     document.getElementById('logout-btn').addEventListener('click', () => {
         localStorage.removeItem('access_token');
         localStorage.removeItem('user_email');
-        window.location.replace('/');
+        window.location.replace('/login');
     });
 }

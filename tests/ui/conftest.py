@@ -36,3 +36,34 @@ def registered_user(base_url):
     response = httpx.post(f"{base_url}/auth/register", json=user, timeout=10)
     assert response.status_code == 200, response.text
     return user
+
+@pytest.fixture
+def logged_in_page(new_context, base_url, registered_user):
+    """A browser page that is already logged in, so the test skips the login form.
+ 
+    1. Log in through the API and get the token.
+    2. Put the token (and email) into the browser's localStorage, which is
+       where the frontend keeps them (a Playwright "storage state").
+    """
+    response = httpx.post(
+        f"{base_url}/auth/login",
+        json={"email": registered_user["email"], "password": registered_user["password"]},
+        timeout=10,
+    )
+    assert response.status_code == 200, response.text
+    token = response.json()["access_token"]
+ 
+    state = {
+        "cookies": [],
+        "origins": [
+            {
+                "origin": base_url,
+                "localStorage": [
+                    {"name": "access_token", "value": token},
+                    {"name": "user_email", "value": registered_user["email"]},
+                ],
+            }
+        ],
+    }
+    context = new_context(storage_state=state)
+    return context.new_page()
