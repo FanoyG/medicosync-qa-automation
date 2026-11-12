@@ -4,7 +4,7 @@ from tests.pages.base_page import BasePage
 
 
 class DashboardPage(BasePage):
-    URL = "/dashboard.html"  # change to the path your browser shows after login
+    URL = "/pages/dashboard.html"  # change to the path your browser shows after login
 
     def __init__(self, page: Page):
         super().__init__(page)

@@ -51,3 +51,90 @@ jobs:
 
       - name: Run all tests
         run: pytest -v --ignore=tests/ui
+  
+
+  ui:
+    name: UI tests (Playwright)
+    needs: smoke
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+
+    # Postgres and Redis for the app. These match the placeholder values in
+    # the top-level env block (localhost:5432 and localhost:6379).
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: test_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U test -d test_db"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      # 1. Look for existing Chromium folder from past runs to save time
+      - name: Cache Playwright Browser Binaries
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('**/requirements.txt') }}
+
+      # 2. Only download Chromium if it's missing from the cache registry
+      - name: Install Chromium
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: python -m playwright install chromium
+
+      # 3. Always set up Linux system packages (~10-15 seconds)
+      - name: Install Playwright OS Dependencies
+        run: |
+          for i in 1 2 3; do
+            python -m playwright install-deps chromium && exit 0
+            echo "Attempt $i failed, retrying in 15s..."
+            sleep 15
+          done
+          exit 1
+      
+      # The app creates its own tables on startup (create_all in main.py).
+      - name: Start the app
+        run: nohup uvicorn main:app --port 8000 > app.log 2>&1 &
+
+      - name: Wait for the app
+        run: curl -sf --retry 20 --retry-delay 2 --retry-all-errors http://127.0.0.1:8000/health
+
+      - name: Run UI tests
+        run: pytest tests/ui -v --screenshot only-on-failure --tracing retain-on-failure
+
+      - name: Upload screenshots, traces and app log
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-failure-artifacts
+          path: |
+            test-results/
+            app.log
+          retention-days: 7
