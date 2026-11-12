@@ -56,7 +56,8 @@ jobs:
   ui:
     name: UI tests (Playwright)
     needs: smoke
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
 
     # Postgres and Redis for the app. These match the placeholder values in
     # the top-level env block (localhost:5432 and localhost:6379).
@@ -110,8 +111,14 @@ jobs:
 
       # 3. Always set up Linux system packages (~10-15 seconds)
       - name: Install Playwright OS Dependencies
-        run: python -m playwright install-deps chromium
-
+        run: |
+          for i in 1 2 3; do
+            python -m playwright install-deps chromium && exit 0
+            echo "Attempt $i failed, retrying in 15s..."
+            sleep 15
+          done
+          exit 1
+      
       # The app creates its own tables on startup (create_all in main.py).
       - name: Start the app
         run: nohup uvicorn main:app --port 8000 > app.log 2>&1 &
