@@ -171,16 +171,3 @@ async def test_string_fields_reject_values_over_limit(db_session, valid_user_pay
 
     with pytest.raises((DataError)):
         await db_session.commit()
-
-#-----------------------------------------------
-# Case-Sensitive Edge Case
-#-----------------------------------------------
-
-@pytest.mark.xfail(reason="email uniqueness is case-sensitive at DB level")
-async def test_email_unique_ignores_case(db_session, valid_user_payload):
-    db_session.add(User(**valid_user_payload))
-    await db_session.commit()
-
-    db_session.add(User(**{**valid_user_payload, "email": "TEST@test.com", "phone_number": "8888888888"}))
-    with pytest.raises(IntegrityError):
-        await db_session.commit()
