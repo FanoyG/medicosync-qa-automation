@@ -24,6 +24,11 @@ class UserRegister(BaseModel):
     phone: PhoneSchema
     specialty: str | None = None
 
+    @field_validator("email")
+    @classmethod
+    def normalize_email(cls, v: str) -> str:
+        return v.strip().lower()
+
     @field_validator("role", mode="before")
     @classmethod
     def normalize_role_case(cls, v: str) -> str:
