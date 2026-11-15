@@ -38,3 +38,15 @@ async def test_extra_field_is_ignored(auth_service, register_payload):
     assert response.status_code == 200
     assert 'user_id' in response.json()
     assert 'extra' not in response.json()
+
+@pytest.mark.xfail(strict=True, reason="Issue #7: email uniqueness is case-sensitive")
+async def test_register_duplicate_email_different_case(auth_service, register_payload):
+    register_payload['email'] = register_payload['email'].lower()
+    await auth_service.register(register_payload)
+
+    register_payload['email'] = register_payload['email'].upper()
+    register_payload['phone']['number'] = "9999999999"
+
+    response = await auth_service.register(register_payload)
+    assert response.status_code == 400
+    assert "already exists" in response.json()['detail']
